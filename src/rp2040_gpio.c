@@ -43,20 +43,26 @@
 
 #if defined(CONFIG_DEV_GPIO) && !defined(CONFIG_GPIO_LOWER_HALF)
 
-/* Output pins. GPIO25 is onboard LED any other outputs could be used.
+/* Output pins.
+ * Defined based on the actuator they control.
  */
 
-#define GPIO_OUT1     25
-
-/* Input pins.
- */
-
-#define GPIO_IN1      6
-
-/* Interrupt pins.
- */
-
-#define GPIO_IRQPIN1  14
+#define GPIO_XV1    2
+#define GPIO_XV2    3
+#define GPIO_XV3    4
+#define GPIO_XV4    5
+#define GPIO_XV5    6
+#define GPIO_XV6    7
+#define GPIO_XV7    8
+#define GPIO_XV8    9
+#define GPIO_XV9    10
+#define GPIO_XV10   11
+#define GPIO_XV11   12
+#define GPIO_XV12   13
+#define GPIO_HEATER 22
+#define GPIO_SV2    27
+#define GPIO_SV1    28
+#define GPIO_IGNITE 26
 
 /****************************************************************************
  * Private Types
@@ -111,7 +117,22 @@ static const struct gpio_operations_s gpout_ops =
 
 static const uint32_t g_gpiooutputs[BOARD_NGPIOOUT] =
 {
-  GPIO_OUT1
+  GPIO_XV1,
+  GPIO_XV2,
+  GPIO_XV3,
+  GPIO_XV4,
+  GPIO_XV5,
+  GPIO_XV6,
+  GPIO_XV7,
+  GPIO_XV8,
+  GPIO_XV9,
+  GPIO_XV10,
+  GPIO_XV11,
+  GPIO_XV12,
+  GPIO_HEATER,
+  GPIO_SV2,
+  GPIO_SV1,
+  GPIO_IGNITE,
 };
 
 static struct rp2040gpio_dev_s g_gpout[BOARD_NGPIOOUT];
