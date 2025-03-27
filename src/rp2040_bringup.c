@@ -39,6 +39,12 @@
 #include "rp2040_common_bringup.h"
 #endif /* CONFIG_ARCH_BOARD_COMMON */
 
+#ifdef CONFIG_ADC_ADS1115
+#include <nuttx/analog/ads1115.h>
+#include "rp2040_i2c.h"
+#include <nuttx/analog/adc.h>
+#endif
+
 #ifdef CONFIG_USERLED
 #  include <nuttx/leds/userled.h>
 #endif
@@ -64,6 +70,22 @@ int rp2040_bringup(void)
 #endif /* CONFIG_ARCH_BOARD_COMMON */
 
   /* --- Place any board specific bringup code here --- */
+
+#ifdef CONFIG_ADC_ADS1115
+  /* Register the ADS1115 ADC driver */
+  struct adc_dev_s *ads1115 = ads1115_initialize(rp2040_i2cbus_initialize(0),
+                                                 CONFIG_ADC_ADS1115_ADDR);
+  if (ads1115 == NULL)
+    {
+      syslog(LOG_ERR, "Failed to initialize ADS1115\n");
+    }
+
+  ret = adc_register("/dev/adc1", ads1115);
+  if (ret < 0)
+    {
+      syslog(LOG_ERR, "Failed to register ADS1115 device driver: %d\n", ret);
+    }
+#endif
 
 #ifdef CONFIG_USERLED
   /* Register the LED driver */
