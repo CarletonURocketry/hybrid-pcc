@@ -43,6 +43,11 @@
 #  include <nuttx/leds/userled.h>
 #endif
 
+#ifdef CONFIG_SENSORS_NAU7802
+#include <nuttx/sensors/nau7802.h>
+#include "rp2040_i2c.h"
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -74,6 +79,17 @@ int rp2040_bringup(void)
       syslog(LOG_ERR, \
       "ERROR: userled_lower_initialize() failed: %d\n", ret);
     }
+#endif
+
+#ifdef CONFIG_SENSORS_NAU7802
+
+  /* Try to register NAU7802 device on I2C0 */
+
+  ret = nau7802_register(rp2040_i2cbus_initialize(0), 0, 0x2A);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
+  }
 #endif
 
   return OK;
