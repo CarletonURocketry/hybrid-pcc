@@ -87,21 +87,9 @@ int rp2040_bringup(void)
   }
 #endif
 
-#ifdef CONFIG_SENSORS_NAU7802
-
-  /* Try to register NAU7802 device on I2C0 */
-
-  ret = nau7802_register(rp2040_i2cbus_initialize(0), 0, 0x2A);
-  if (ret < 0)
-  {
-    syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
-  }
-#endif
-
 #ifdef CONFIG_ADC_ADS1115
   int ads1115_addrs[3] = {0x48, 0x49, 0x4A};
-
-  /* Register the ADS1115 ADC driver */
+  char *ads1115_devpaths[3] = {"/dev/adc0", "/dev/adc1", "/dev/adc2"};
 
   for (int i = 0; i < 3; i++)
   {
@@ -111,20 +99,28 @@ int rp2040_bringup(void)
     {
       syslog(LOG_ERR, "Failed to initialize ADS1115 at address 0x%02X\n",
              ads1115_addrs[i]);
-      continue; // Skip to next device if initialization fails
     }
-
-    char devpath[16];
-    snprintf(devpath, sizeof(devpath), "/dev/adc%d", i);
-
-    ret = adc_register(devpath, ads1115);
-    if (ret < 0)
+    else
     {
-      syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
-             devpath, ret);
+      ret = adc_register(ads1115_devpaths[i], ads1115);
+      if (ret < 0)
+      {
+        syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
+               ads1115_devpaths[i], ret);
+      }
     }
   }
 
+#endif
+
+#ifdef CONFIG_SENSORS_NAU7802
+
+  ret = nau7802_register(rp2040_i2cbus_initialize(0), 0, 0x2A);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
+    return ret;
+  }
 #endif
 
   return OK;
