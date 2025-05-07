@@ -48,6 +48,11 @@
 #include "rp2040_i2c.h"
 #endif
 
+#ifdef CONFIG_SENSORS_MCP9600
+#include <nuttx/sensors/mcp9600.h>
+#include "rp2040_i2c.h"
+#endif
+
 #ifdef CONFIG_ADC_ADS1115
 #include "rp2040_i2c.h"
 #include <nuttx/analog/adc.h>
@@ -123,6 +128,22 @@ int rp2040_bringup(void)
       syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
              devpath, ret);
     }
+  }
+
+#endif
+
+#ifdef CONFIG_SENSORS_MCP9600
+
+  /* Register both thermocouple amplifiers at 0x66 and 0x67 */
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x66, 1, 2, 3);
+  if (ret < 0) {
+    syslog(LOG_ERR, "Failed to register MCP9600 at 0x66: %d\n", ret);
+  }
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x67, 4, 5, 6);
+  if (ret < 0) {
+    syslog(LOG_ERR, "Failed to register MCP9600 at 0x67: %d\n", ret);
   }
 
 #endif
