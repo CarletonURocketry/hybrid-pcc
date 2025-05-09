@@ -48,6 +48,11 @@
 #include "rp2040_i2c.h"
 #endif
 
+#ifdef CONFIG_SENSORS_MCP9600
+#include <nuttx/sensors/mcp9600.h>
+#include "rp2040_i2c.h"
+#endif
+
 #ifdef CONFIG_ADC_ADS1115
 #include "rp2040_i2c.h"
 #include <nuttx/analog/adc.h>
@@ -120,6 +125,28 @@ int rp2040_bringup(void)
   {
     syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
     return ret;
+  }
+#endif
+
+#ifdef CONFIG_SENSORS_MCP9600
+  /*
+    Registration args for the topics are: hot junction, cold junction, delta (in this order)
+    cold junction gets ambient temperature topic (the one we are interested in)
+    hot junction and delta get temperature topic
+    common bringup registers the default sensors with the following args: 1, 2, 3
+    the following registration will set the ambient temperature to have topics 0 and 1
+  */
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x66, 2, 0, 4);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "Could not register MCP9600 at 0x66: %d\n", ret);
+  }
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x67, 5, 1, 6);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "Could not register MCP9600 at 0x67: %d\n", ret);
   }
 #endif
 
