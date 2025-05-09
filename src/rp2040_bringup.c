@@ -53,6 +53,11 @@
 #include "rp2040_i2c.h"
 #endif
 
+#ifdef CONFIG_SENSORS_MCP9600
+#include <nuttx/sensors/mcp9600.h>
+#include "rp2040_i2c.h"
+#endif
+
 #ifdef CONFIG_ADC_ADS1115
 #include "rp2040_i2c.h"
 #include <nuttx/analog/adc.h>
