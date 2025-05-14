@@ -129,7 +129,6 @@ int rp2040_bringup(void)
   if (ret < 0)
   {
     syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
-    return ret;
   }
 #endif
 
