@@ -98,33 +98,28 @@ int rp2040_bringup(void)
 #endif
 
 #ifdef CONFIG_ADC_ADS1115
-  int ads1115_addrs[3] = {0x48, 0x49, 0x4A};
+  uint8_t ads1115_addrs[3] = {0x48, 0x49, 0x4A};
   char *ads1115_devpaths[3] = {"/dev/adc0", "/dev/adc1", "/dev/adc2"};
 
-  for (int i = 0; i < 3; i++)
-  {
+  for (int i = 0; i < 3; i++) {
     struct adc_dev_s *ads1115 =
         ads1115_initialize(rp2040_i2cbus_initialize(0), ads1115_addrs[i]);
-    if (ads1115 == NULL)
-    {
+
+    if (ads1115 == NULL) {
       syslog(LOG_ERR, "Failed to initialize ADS1115 at address 0x%02X\n",
              ads1115_addrs[i]);
+      continue;
     }
-    else
-    {
-      ret = adc_register(ads1115_devpaths[i], ads1115);
-      if (ret < 0)
-      {
-        syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
-               ads1115_devpaths[i], ret);
-      }
+
+    ret = adc_register(ads1115_devpaths[i], ads1115);
+    if (ret < 0) {
+      syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
+             ads1115_devpaths[i], ret);
     }
   }
-
 #endif
 
 #ifdef CONFIG_SENSORS_NAU7802
-
   ret = nau7802_register(rp2040_i2cbus_initialize(0), 0, 0x2A);
   if (ret < 0)
   {
