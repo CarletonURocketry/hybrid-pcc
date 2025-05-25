@@ -29,6 +29,8 @@
 #include <sys/types.h>
 #include <syslog.h>
 #include <nuttx/irq.h>
+#include <nuttx/notifier.h>
+#include <nuttx/panic_notifier.h>
 #include <arch/irq.h>
 #include <assert.h>
 #include <debug.h>
@@ -100,6 +102,14 @@ static int gpint_attach(struct gpio_dev_s *dev,
                         pin_interrupt_t callback);
 static int gpint_enable(struct gpio_dev_s *dev, bool enable);
 #endif
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#if BOARD_NGPIOINT > 0
+ struct notifier_block panic_notifier; 
+ #endif
 
 /****************************************************************************
  * Private Data
@@ -333,6 +343,21 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable)
 #endif
 
 /****************************************************************************
+ * Name: panic_disable_gpio
+ ****************************************************************************/
+
+static int panic_disable_gpio(struct notifier_block *nb, unsigned long action, void *data)
+{
+  #if BOARD_NGPIOOUT > 0
+  for (int i = 0; i < BOARD_NGPIOOUT; i++)
+    {
+      gpout_write(&g_gpout[i].gpio, false);
+    }
+  #endif 
+  return OK;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -407,6 +432,13 @@ int rp2040_dev_gpio_init(void)
 
       pincount++;
     }
+#endif
+
+#if BOARD_NGPIOINT > 0
+  /* Register the panic notifier */
+  panic_notifier.notifier_call = panic_disable_gpio;
+  panic_notifier.priority = 0;
+  panic_notifier_chain_register(&panic_notifier);
 #endif
 
   return OK;
