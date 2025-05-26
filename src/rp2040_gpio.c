@@ -109,7 +109,7 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable);
 
 #if BOARD_NGPIOINT > 0
  struct notifier_block panic_notifier; 
- #endif
+#endif
 
 /****************************************************************************
  * Private Data
@@ -348,10 +348,10 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable)
 
 static int panic_disable_gpio(struct notifier_block *nb, unsigned long action, void *data)
 {
-  #if BOARD_NGPIOINT > 0
-  for (int i = 0; i < BOARD_NGPIOINT; i++)
+  #if BOARD_NGPIOOUT > 0
+  for (int i = 0; i < BOARD_NGPIOOUT; i++)
     {
-      gpint_enable(&g_gpint[i].rp2040gpio.gpio, false);
+      rp2040_gpio_put(g_gpiooutputs[i], false);
     }
   #endif 
   return OK;
