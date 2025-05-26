@@ -348,10 +348,10 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable)
 
 static int panic_disable_gpio(struct notifier_block *nb, unsigned long action, void *data)
 {
-  #if BOARD_NGPIOOUT > 0
-  for (int i = 0; i < BOARD_NGPIOOUT; i++)
+  #if BOARD_NGPIOINT > 0
+  for (int i = 0; i < BOARD_NGPIOINT; i++)
     {
-      gpout_write(&g_gpout[i].gpio, false);
+      gpint_enable(&g_gpint[i].rp2040gpio.gpio, false);
     }
   #endif 
   return OK;
