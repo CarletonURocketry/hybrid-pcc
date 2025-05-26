@@ -62,9 +62,10 @@
 #define GPIO_XV11   12
 #define GPIO_XV12   13
 #define GPIO_HEATER 22
-#define GPIO_SV2    27
-#define GPIO_SV1    28
-#define GPIO_IGNITE 26
+#define GPIO_IGNITE 28
+
+#define GPIO_QUICKDISCONNECT 26 /* PWM A5, not GPIO */
+#define GPIO_DUMP            27 /* PWM B5, not GPIO */
 
 /****************************************************************************
  * Private Types
@@ -140,8 +141,6 @@ static const uint32_t g_gpiooutputs[BOARD_NGPIOOUT] =
   GPIO_XV11,
   GPIO_XV12,
   GPIO_HEATER,
-  GPIO_SV2,
-  GPIO_SV1,
   GPIO_IGNITE,
 };
 

@@ -40,7 +40,28 @@
 #endif /* CONFIG_ARCH_BOARD_COMMON */
 
 #ifdef CONFIG_USERLED
-#  include <nuttx/leds/userled.h>
+#include <nuttx/leds/userled.h>
+#endif
+
+#ifdef CONFIG_SENSORS_NAU7802
+#include <nuttx/sensors/nau7802.h>
+#include "rp2040_i2c.h"
+#endif
+
+#ifdef CONFIG_SENSORS_MCP9600
+#include <nuttx/sensors/mcp9600.h>
+#include "rp2040_i2c.h"
+#endif
+
+#ifdef CONFIG_SENSORS_MCP9600
+#include <nuttx/sensors/mcp9600.h>
+#include "rp2040_i2c.h"
+#endif
+
+#ifdef CONFIG_ADC_ADS1115
+#include "rp2040_i2c.h"
+#include <nuttx/analog/adc.h>
+#include <nuttx/analog/ads1115.h>
 #endif
 
 /****************************************************************************
@@ -57,9 +78,9 @@ int rp2040_bringup(void)
 
   int ret = rp2040_common_bringup();
   if (ret < 0)
-    {
-      return ret;
-    }
+  {
+    return ret;
+  }
 
 #endif /* CONFIG_ARCH_BOARD_COMMON */
 
@@ -70,10 +91,62 @@ int rp2040_bringup(void)
 
   ret = userled_lower_initialize("/dev/userleds");
   if (ret < 0)
-    {
-      syslog(LOG_ERR, \
-      "ERROR: userled_lower_initialize() failed: %d\n", ret);
+  {
+    syslog(LOG_ERR,
+           "ERROR: userled_lower_initialize() failed: %d\n", ret);
+  }
+#endif
+
+#ifdef CONFIG_ADC_ADS1115
+  uint8_t ads1115_addrs[3] = {0x48, 0x49, 0x4A};
+  char *ads1115_devpaths[3] = {"/dev/adc0", "/dev/adc1", "/dev/adc2"};
+
+  for (int i = 0; i < 3; i++) {
+    struct adc_dev_s *ads1115 =
+        ads1115_initialize(rp2040_i2cbus_initialize(0), ads1115_addrs[i]);
+
+    if (ads1115 == NULL) {
+      syslog(LOG_ERR, "Failed to initialize ADS1115 at address 0x%02X\n",
+             ads1115_addrs[i]);
+      continue;
     }
+
+    ret = adc_register(ads1115_devpaths[i], ads1115);
+    if (ret < 0) {
+      syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
+             ads1115_devpaths[i], ret);
+    }
+  }
+#endif
+
+#ifdef CONFIG_SENSORS_NAU7802
+  ret = nau7802_register(rp2040_i2cbus_initialize(0), 0, 0x2A);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "ERROR: couldn't initialize NAU7802: %d\n", ret);
+  }
+#endif
+
+#ifdef CONFIG_SENSORS_MCP9600
+  /*
+    Registration args for the topics are: hot junction, cold junction, delta (in this order)
+    cold junction gets ambient temperature topic (the one we are interested in)
+    hot junction and delta get temperature topic
+    common bringup registers the default sensors with the following args: 1, 2, 3
+    the following registration will set the ambient temperature to have topics 0 and 1
+  */
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x66, 2, 0, 4);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "Could not register MCP9600 at 0x66: %d\n", ret);
+  }
+
+  ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x67, 5, 1, 6);
+  if (ret < 0)
+  {
+    syslog(LOG_ERR, "Could not register MCP9600 at 0x67: %d\n", ret);
+  }
 #endif
 
   return OK;
