@@ -107,8 +107,8 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable);
  * Public Data
  ****************************************************************************/
 
-#if BOARD_NGPIOINT > 0
- struct notifier_block panic_notifier; 
+#if BOARD_NGPIOOUT > 0
+static struct notifier_block panic_notifier;
 #endif
 
 /****************************************************************************
@@ -346,16 +346,15 @@ static int gpint_enable(struct gpio_dev_s *dev, bool enable)
  * Name: panic_disable_gpio
  ****************************************************************************/
 
-static int panic_disable_gpio(struct notifier_block *nb, unsigned long action, void *data)
-{
-  #if BOARD_NGPIOOUT > 0
-  for (int i = 0; i < BOARD_NGPIOOUT; i++)
-    {
-      rp2040_gpio_put(g_gpiooutputs[i], false);
-    }
-  #endif 
+#if BOARD_NGPIOOUT > 0
+static int panic_disable_gpio(struct notifier_block *nb, unsigned long action,
+                              void *data) {
+  for (int i = 0; i < BOARD_NGPIOOUT; i++) {
+    rp2040_gpio_put(g_gpiooutputs[i], false);
+  }
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -434,13 +433,13 @@ int rp2040_dev_gpio_init(void)
     }
 #endif
 
-#if BOARD_NGPIOINT > 0
-  /* Register the panic notifier */
-  panic_notifier.notifier_call = panic_disable_gpio;
-  panic_notifier.priority = 0;
-  panic_notifier_chain_register(&panic_notifier);
+#if BOARD_NGPIOOUT > 0
+    /* Register the panic notifier */
+    panic_notifier.notifier_call = panic_disable_gpio;
+    panic_notifier.priority = 0;
+    panic_notifier_chain_register(&panic_notifier);
 #endif
 
-  return OK;
+    return OK;
 }
 #endif /* CONFIG_DEV_GPIO && !CONFIG_GPIO_LOWER_HALF */
