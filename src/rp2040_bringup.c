@@ -101,18 +101,21 @@ int rp2040_bringup(void)
   uint8_t ads1115_addrs[3] = {0x48, 0x49, 0x4A};
   char *ads1115_devpaths[3] = {"/dev/adc0", "/dev/adc1", "/dev/adc2"};
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     struct adc_dev_s *ads1115 =
         ads1115_initialize(rp2040_i2cbus_initialize(0), ads1115_addrs[i]);
 
-    if (ads1115 == NULL) {
+    if (ads1115 == NULL)
+    {
       syslog(LOG_ERR, "Failed to initialize ADS1115 at address 0x%02X\n",
              ads1115_addrs[i]);
       continue;
     }
 
     ret = adc_register(ads1115_devpaths[i], ads1115);
-    if (ret < 0) {
+    if (ret < 0)
+    {
       syslog(LOG_ERR, "Failed to register ADS1115 device driver at %s: %d\n",
              ads1115_devpaths[i], ret);
     }
@@ -130,10 +133,10 @@ int rp2040_bringup(void)
 #ifdef CONFIG_SENSORS_MCP9600
   /*
     Registration args for the topics are: hot junction, cold junction, delta (in this order)
-    cold junction gets ambient temperature topic (the one we are interested in)
+    cold junction gets ambient temperature topic
     hot junction and delta get temperature topic
     common bringup registers the default sensors with the following args: 1, 2, 3
-    the following registration will set the ambient temperature to have topics 0 and 1
+    the following registration will set the hot junction to have topics 2 and 5
   */
 
   ret = mcp9600_register(rp2040_i2cbus_initialize(0), 0x66, 2, 0, 4);
