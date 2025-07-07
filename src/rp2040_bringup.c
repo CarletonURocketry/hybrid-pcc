@@ -31,6 +31,13 @@
 
 #include <nuttx/fs/fs.h>
 
+#ifdef CONFIG_RP2040_PWM5
+#include <nuttx/panic_notifier.h>
+#include <nuttx/timers/pwm.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#endif
+
 #include <arch/board/board.h>
 
 #include "rp2040_pico.h"
@@ -62,6 +69,45 @@
 #include "rp2040_i2c.h"
 #include <nuttx/analog/adc.h>
 #include <nuttx/analog/ads1115.h>
+#endif
+
+#ifdef CONFIG_RP2040_PWM5
+static struct notifier_block panic_notifier;
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_RP2040_PWM5
+static int panic_open_dump_valve(struct notifier_block *nb, unsigned long action, void *data) {
+    int fd;
+    int err;
+    struct pwm_info_s pwm_config;
+
+    fd = open("/dev/pwm5", O_RDWR);
+    if (fd < 0) {
+        return -1;
+    }
+
+    /* WARNING: make sure this matches the configuration settings for the dump
+     * valve.
+     * TODO: this should probably be a Kconfig option.
+     */
+
+    pwm_config.frequency = 250;
+    pwm_config.channels[1].channel = 1;
+    pwm_config.channels[1].cpol = 1;
+    pwm_config.channels[1].dcpol = 0;
+    pwm_config.channels[1].duty = 0x4000;
+
+    err = ioctl(fd, PWMIOC_SETCHARACTERISTICS, &pwm_config);
+    if (err) {
+        return -1;
+    }
+
+    return ioctl(fd, PWMIOC_START, NULL);
+}
 #endif
 
 /****************************************************************************
@@ -150,6 +196,16 @@ int rp2040_bringup(void)
   {
     syslog(LOG_ERR, "Could not register MCP9600 at 0x67: %d\n", ret);
   }
+#endif
+
+  /* Dump valve panic handler to open on crash.
+   * WARNING: This panic handler duplicates the PWM configuration of the
+   * application. Ensure it is up to date.
+   */
+#ifdef CONFIG_RP2040_PWM5
+    panic_notifier.notifier_call = panic_open_dump_valve;
+    panic_notifier.priority = 0;
+    panic_notifier_chain_register(&panic_notifier);
 #endif
 
   return OK;
