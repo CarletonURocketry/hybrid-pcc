@@ -106,7 +106,9 @@ static int panic_open_dump_valve(struct notifier_block *nb, unsigned long action
         return -1;
     }
 
-    return ioctl(fd, PWMIOC_START, NULL);
+    err = ioctl(fd, PWMIOC_START, NULL);
+    up_udelay(1e6);
+    return err;
 }
 #endif
 
