@@ -66,10 +66,11 @@
 #endif
 
 #ifdef CONFIG_ADC_ADS1115
-#include "rp2040_i2c.h"
 #include <nuttx/analog/adc.h>
 #include <nuttx/analog/ads1115.h>
 #endif
+
+#include "rp2040_i2c.h"
 
 #ifdef CONFIG_RP2040_PWM5
 static struct notifier_block panic_notifier;
