@@ -49,20 +49,20 @@
  * Defined based on the actuator they control.
  */
 
-#define GPIO_XV1    2
-#define GPIO_XV2    3
-#define GPIO_XV3    4
-#define GPIO_XV4    5
-#define GPIO_XV5    6
-#define GPIO_XV6    7
-#define GPIO_XV7    8
-#define GPIO_XV8    9
+#define GPIO_XV1    0
+#define GPIO_XV2    1
+#define GPIO_XV3    2
+#define GPIO_XV4    3
+#define GPIO_XV5    4
+#define GPIO_XV6    5
+#define GPIO_XV7    6
+#define GPIO_XV8    11
 #define GPIO_XV9    10
-#define GPIO_XV10   11
-#define GPIO_XV11   12
-#define GPIO_XV12   13
+#define GPIO_XV10   9
+#define GPIO_XV11   8
+#define GPIO_XV12   28
 #define GPIO_HEATER 22
-#define GPIO_IGNITE 28
+#define GPIO_IGNITE 7
 
 #define GPIO_QUICKDISCONNECT 26 /* PWM A5, not GPIO */
 #define GPIO_DUMP            27 /* PWM B5, not GPIO */
