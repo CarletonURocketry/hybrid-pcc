@@ -49,14 +49,14 @@
  * Defined based on the actuator they control.
  */
 
-#define GPIO_XV1    0
+#define GPIO_XV1    11
 #define GPIO_XV2    1
 #define GPIO_XV3    2
 #define GPIO_XV4    3
 #define GPIO_XV5    4
 #define GPIO_XV6    5
 #define GPIO_XV7    6
-#define GPIO_XV8    11
+#define GPIO_XV8    0
 #define GPIO_XV9    10
 #define GPIO_XV10   9
 #define GPIO_XV11   8
